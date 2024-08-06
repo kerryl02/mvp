@@ -1,0 +1,42 @@
+// prisma/schema.prisma
+
+// Le fournisseur de base de données
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Génération du client Prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Définition des modèles
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  listings  Listing[]  @relation("UserListings")
+  reservations Reservation[]
+}
+
+model Listing {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String
+  price       Float
+  imageUrl    String
+  userId      Int
+  user        User           @relation("UserListings", fields: [userId], references: [id])
+  reservations Reservation[]
+}
+
+model Reservation {
+  id         Int      @id @default(autoincrement())
+  listingId  Int
+  userId     Int
+  startDate  DateTime
+  endDate    DateTime
+  listing    Listing @relation(fields: [listingId], references: [id])
+  user       User    @relation(fields: [userId], references: [id])
+}
